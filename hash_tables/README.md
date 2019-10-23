@@ -412,6 +412,82 @@ Secondary clustering in Quadratic Probing is not as bad as primary clustering in
 
 ** Double Hashing
 
+In double hashing we modify the probe sequence, in order to reduce the primary and secondary clustering, to be:
+
+```
+h(v)  # base address
+(h(v) + (1 * h2(v))) % M # First probing step if there is a collision
+(h(v) + (2 * h2(v))) % M # Second probing step if there is a collision
+(h(v) + (3 * h2(v))) % M # Third probing step if there is a collision
+. . .
+(h(v) + (k * h2(v))) % M # K-th probing step if there is a collision
+```
+
+So the probe jumps according to the value of the second hash function, h2(v), that wraps around the Hash Table as necessary.
+
+Note: h2(v) cannot be 0 or else we will keep getting the same index, if h2(v) = 1 it's bacially linear probing.
+
+h(v) = v % M
+h2(v) = (M' - (v % M')) where M' is a prime < M 
+
+As an example:
+
+If we had a table of size, M,  7
+M' would be 5, a smaller prime
+and we wanted to hash 35:
+
+h(35) = 35 % 7 = 0
+h2(35) = 5 - (35 % 5) = 5 (cannot be 0 so we return M' which is 5) = 5
+
+(h(35) + h2(35)) % M = (0 + 5) % 7 = 5
+
+If we wanted to hash 42 (which has the same base address as 35) we will see a different address:
+
+h(42) = 42 % 7 = 0
+h2(42) = 5 - (42 % 5) = 3
+
+(h(42) + h2(42)) % M = (0 + 3) % 7 = 3 
+
+In order for this to work, h2(v) needs to yeild some Integer, n, where 0 < n < M
+
+This normally makes the return value diverse enough to avoid primary or secondary clustering.
+
+* Insert
+
+Given a Hash Table:
+
+i:0(14) i:1() i:2() i:3() i:4() i:5() i:6()
+
+Insert(35) = h(35) = v % M = 35 % 7 = 0  # i:0 is taken so we step
+             h(35) = (v % M) + (step * (M' - (v % M'))) = (35 % 7) + (1 * (5 - (35 % 5))) = 5 # i:5 is empty so we place 35 there
+
+i:0(14) i:1() i:2() i:3() i:4() i:5(35) i:6() 
+
+Insert(17) = h(17) = v % M = 17 % 7 = 3  # i:3 is empty so we place 17 there
+
+i:0(14) i:1() i:2() i:3(17) i:4() i:5(35) i:6()
+
+* Search
+
+Searching uses the same algorithm to find values in the Hash Table
+
+Given a Hash Table:
+
+i:0(14) i:1() i:2() i:3(17) i:4() i:5(35) i:6()
+
+Search(35) = h(35) = v % M = 35 % 7 = 0  # i:0 == 14 != 35 so we step
+             h(35) = (v % M) + (step + (M' - (v % M'))) = (35 % 7) + (1 * (5 - (35 % 5))) = 5  # i:5 == 35 == 35 so we return the index 5
+
+* Remove
+
+Searching is similar to Search, but when we find the value we set it to our delete symbol
+
+Given a Hash Table:
+
+i:0(14) i:1() i:2() i:3(17) i:4() i:5(35) i:6()
+
+Remove(35) = h(35) = v % M = 35 % 7 = 0  # i:0 == 14 != 35 so we step
+             h(35) = (v % M) + (step + (M' - (v % M'))) = (35 % 7) + (1 * (5 - (35 % 5))) = 5  # i:5 == 35 == 35 so we set i:5 to our delete symbol and return the index 5
 
 
 ** Closed Addressing
